@@ -25,3 +25,41 @@ def create_event(data, user):
 def get_user_events(user):
     db = SessionLocal()
     return db.query(CalendarEvent).filter(CalendarEvent.user_id == user.id).all()
+
+def get_event(event_id, user):
+    db = SessionLocal()
+    event = db.query(CalendarEvent).filter(CalendarEvent.id == event_id, CalendarEvent.user_id == user.id).first()
+    return event
+
+def update_event(event_id, data, user):
+    db = SessionLocal()
+    event = db.query(CalendarEvent).filter(CalendarEvent.id == event_id, CalendarEvent.user_id == user.id).first()
+    if not event:
+        return None
+    if hasattr(data, 'title'):
+        event.title = data.title
+    if hasattr(data, 'date'):
+        event.date = data.date
+    if hasattr(data, 'description'):
+        event.description = data.description
+    db.commit()
+    db.refresh(event)
+    return event
+
+def delete_event(event_id, user):
+    db = SessionLocal()
+    event = db.query(CalendarEvent).filter(CalendarEvent.id == event_id, CalendarEvent.user_id == user.id).first()
+    if not event:
+        return False
+    db.delete(event)
+    db.commit()
+    return True
+
+def search_events(user, date=None, title=None):
+    db = SessionLocal()
+    query = db.query(CalendarEvent).filter(CalendarEvent.user_id == user.id)
+    if date:
+        query = query.filter(CalendarEvent.date == date)
+    if title:
+        query = query.filter(CalendarEvent.title.ilike(f"%{title}%"))
+    return query.all()

@@ -37,4 +37,20 @@ def delete_reminder(reminder_id, user):
 
 def get_user_reminders(user):
     db = SessionLocal()
-    return db.query(Reminder).filter(Reminder.user_id == user.id).all() 
+    return db.query(Reminder).filter(Reminder.user_id == user.id).all()
+
+def get_reminder(reminder_id, user):
+    db = SessionLocal()
+    reminder = db.query(Reminder).filter(Reminder.id == reminder_id, Reminder.user_id == user.id).first()
+    return reminder
+
+def search_reminders(user, date=None, event_id=None, message=None):
+    db = SessionLocal()
+    query = db.query(Reminder).filter(Reminder.user_id == user.id)
+    if date:
+        query = query.filter(Reminder.remind_at == date)
+    if event_id:
+        query = query.filter(Reminder.event_id == event_id)
+    if message:
+        query = query.filter(Reminder.message.ilike(f"%{message}%"))
+    return query.all() 
