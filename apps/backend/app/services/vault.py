@@ -1,13 +1,18 @@
 from app.models.vault import VaultEntry
-from app.core.encryption import encrypt, decrypt
 from app.db.session import SessionLocal
+from app.core.encryption import encrypt, decrypt
+import json
 
 KEY = "<your_base64_key>"
 
 def create_vault_entry(data, user):
     db = SessionLocal()
-    enc = encrypt(data.encrypted_data, KEY)
-    entry = VaultEntry(title=data.title, encrypted_data=enc["ciphertext"], nonce=enc["nonce"], user_id=user.id)
+    to_encrypt = json.dumps({
+        "title": data.title,
+        "data": data.data
+    })
+    enc = encrypt(to_encrypt, KEY)
+    entry = VaultEntry(encrypted_data=enc["ciphertext"], nonce=enc["nonce"], user_id=user.id)
     db.add(entry)
     db.commit()
     db.refresh(entry)
@@ -15,7 +20,13 @@ def create_vault_entry(data, user):
 
 def get_user_vault_entries(user):
     db = SessionLocal()
-    return db.query(VaultEntry).filter(VaultEntry.user_id == user.id).all()
+    entries = db.query(VaultEntry).filter(VaultEntry.user_id == user.id).all()
+    result = []
+    for entry in entries:
+        dec = json.loads(decrypt(entry.encrypted_data, entry.nonce, KEY))
+        dec["id"] = entry.id
+        result.append(dec)
+    return result
 
 def get_vault_entry(vault_id, user):
     db = SessionLocal()

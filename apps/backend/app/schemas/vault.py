@@ -1,14 +1,10 @@
 from pydantic import BaseModel
 
-class VaultEntryBase(BaseModel):
+class VaultEntryIn(BaseModel):
     title: str
-    encrypted_data: str
+    data: str
 
-class VaultEntryIn(VaultEntryBase):
-    pass
-
-class VaultEntryOut(VaultEntryBase):
+class VaultEntryOut(VaultEntryIn):
     id: int
-
     class Config:
         orm_mode = True

@@ -14,7 +14,6 @@ class TodoCreate(TodoBase):
 
 class TodoOut(TodoBase):
     id: int
-    reminders: List[ReminderOut] = []
-
+    reminders: Optional[List[ReminderOut]] = None
     class Config:
         orm_mode = True 

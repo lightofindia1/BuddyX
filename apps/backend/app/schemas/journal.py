@@ -1,16 +1,14 @@
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import date
 
-class JournalEntryBase(BaseModel):
-    title: str
-    encrypted_content: str
+class JournalEntryIn(BaseModel):
+    date: date
+    content: str
 
-class JournalEntryIn(JournalEntryBase):
-    pass
-
-class JournalEntryOut(JournalEntryBase):
+class JournalEntryOut(BaseModel):
     id: int
-    created_at: datetime
+    date: date
+    content: str
 
     class Config:
         orm_mode = True

@@ -1,12 +1,19 @@
 from app.models.todo import Todo
 from app.models.reminder import Reminder
 from app.db.session import SessionLocal
+from app.core.encryption import encrypt, decrypt
+import json
 
 def create_todo(data, user):
     db = SessionLocal()
+    to_encrypt = json.dumps({
+        "title": data.title,
+        "description": data.description
+    })
+    enc = encrypt(to_encrypt, "<your_base64_key>")
     todo = Todo(
-        title=data.title,
-        description=data.description,
+        encrypted_content=enc["ciphertext"],
+        nonce=enc["nonce"],
         due_date=data.due_date,
         completed=data.completed,
         user_id=user.id
@@ -30,7 +37,19 @@ def create_todo(data, user):
 
 def get_user_todos(user):
     db = SessionLocal()
-    return db.query(Todo).filter(Todo.user_id == user.id).all()
+    todos = db.query(Todo).filter(Todo.user_id == user.id).all()
+    result = []
+    for todo in todos:
+        dec = json.loads(decrypt(todo.encrypted_content, todo.nonce, "<your_base64_key>"))
+        result.append({
+            "id": todo.id,
+            "title": dec["title"],
+            "description": dec["description"],
+            "due_date": todo.due_date,
+            "completed": todo.completed,
+            # reminders will be handled elsewhere
+        })
+    return result
 
 def get_todo(todo_id, user):
     db = SessionLocal()

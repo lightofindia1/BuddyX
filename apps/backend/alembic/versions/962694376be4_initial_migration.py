@@ -1,8 +1,8 @@
-"""initial
+"""Initial migration
 
-Revision ID: d6d26efece9f
+Revision ID: 962694376be4
 Revises: 
-Create Date: 2025-07-14 19:02:12.063063
+Create Date: 2025-07-15 21:33:10.481972
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'd6d26efece9f'
+revision: str = '962694376be4'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -39,60 +39,92 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_calendarevent_id'), 'calendarevent', ['id'], unique=False)
-    op.create_table('emailmessage',
+    op.create_table('emailaccount',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('subject', sa.String(), nullable=True),
-    sa.Column('body', sa.Text(), nullable=True),
-    sa.Column('from_addr', sa.String(), nullable=True),
-    sa.Column('to_addr', sa.String(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('provider', sa.String(), nullable=False),
+    sa.Column('email_address', sa.String(), nullable=False),
+    sa.Column('display_name', sa.String(), nullable=True),
+    sa.Column('encrypted_access_token', sa.String(), nullable=True),
+    sa.Column('encrypted_refresh_token', sa.String(), nullable=True),
+    sa.Column('token_expiry', sa.DateTime(), nullable=True),
+    sa.Column('settings', sa.String(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_emailmessage_id'), 'emailmessage', ['id'], unique=False)
+    op.create_index(op.f('ix_emailaccount_id'), 'emailaccount', ['id'], unique=False)
     op.create_table('fileentry',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('filename', sa.String(), nullable=True),
     sa.Column('encrypted_content', sa.String(), nullable=True),
     sa.Column('nonce', sa.String(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('parent_id', sa.Integer(), nullable=True),
+    sa.Column('is_folder', sa.Boolean(), nullable=True),
+    sa.Column('size', sa.Integer(), nullable=True),
+    sa.Column('file_type', sa.String(), nullable=True),
+    sa.ForeignKeyConstraint(['parent_id'], ['fileentry.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_fileentry_id'), 'fileentry', ['id'], unique=False)
     op.create_table('journalentry',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('content', sa.Text(), nullable=True),
-    sa.Column('created_at', sa.String(), nullable=True),
+    sa.Column('date', sa.Date(), nullable=False),
+    sa.Column('encrypted_content', sa.String(), nullable=False),
+    sa.Column('nonce', sa.String(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('user_id', 'date', name='_user_date_uc')
     )
     op.create_index(op.f('ix_journalentry_id'), 'journalentry', ['id'], unique=False)
     op.create_table('vaultentry',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.String(), nullable=True),
-    sa.Column('encrypted_data', sa.String(), nullable=True),
-    sa.Column('nonce', sa.String(), nullable=True),
+    sa.Column('encrypted_data', sa.String(), nullable=False),
+    sa.Column('nonce', sa.String(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_vaultentry_id'), 'vaultentry', ['id'], unique=False)
+    op.create_table('emailmessage',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('email_account_id', sa.Integer(), nullable=True),
+    sa.Column('message_id', sa.String(), nullable=True),
+    sa.Column('thread_id', sa.String(), nullable=True),
+    sa.Column('date_sent', sa.DateTime(), nullable=True),
+    sa.Column('date_received', sa.DateTime(), nullable=True),
+    sa.Column('folder', sa.String(), nullable=True),
+    sa.Column('is_read', sa.Boolean(), nullable=True),
+    sa.Column('is_starred', sa.Boolean(), nullable=True),
+    sa.Column('is_important', sa.Boolean(), nullable=True),
+    sa.Column('encrypted_content', sa.String(), nullable=False),
+    sa.Column('nonce', sa.String(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['email_account_id'], ['emailaccount.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_emailmessage_id'), 'emailmessage', ['id'], unique=False)
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_index(op.f('ix_emailmessage_id'), table_name='emailmessage')
+    op.drop_table('emailmessage')
     op.drop_index(op.f('ix_vaultentry_id'), table_name='vaultentry')
     op.drop_table('vaultentry')
     op.drop_index(op.f('ix_journalentry_id'), table_name='journalentry')
     op.drop_table('journalentry')
     op.drop_index(op.f('ix_fileentry_id'), table_name='fileentry')
     op.drop_table('fileentry')
-    op.drop_index(op.f('ix_emailmessage_id'), table_name='emailmessage')
-    op.drop_table('emailmessage')
+    op.drop_index(op.f('ix_emailaccount_id'), table_name='emailaccount')
+    op.drop_table('emailaccount')
     op.drop_index(op.f('ix_calendarevent_id'), table_name='calendarevent')
     op.drop_table('calendarevent')
     op.drop_index(op.f('ix_user_username'), table_name='user')

@@ -5,10 +5,9 @@ from app.db.base import Base
 
 class Todo(Base):
     __tablename__ = "todo"
-
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    description = Column(String)
+    encrypted_content = Column(String, nullable=False)
+    nonce = Column(String, nullable=False)
     due_date = Column(DateTime)
     completed = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey("user.id"))
