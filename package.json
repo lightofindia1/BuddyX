@@ -1,0 +1,26 @@
+{
+  "name": "buddyx-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/web",
+    "apps/desktop",
+    "apps/mobile",
+    "packages/ui",
+    "packages/api-client",
+    "packages/crypto",
+    "packages/hooks",
+    "packages/types",
+    "packages/config"
+  ],
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.5"
+  },
+  "scripts": {
+    "build": "echo 'Use per-app build scripts'",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write ."
+  }
+} 

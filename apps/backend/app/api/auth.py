@@ -1,12 +1,13 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from app.schemas.user import UserLogin
-from app.services.auth import login_user
-from apps.backend.main import limiter
-from slowapi.decorator import limiter as route_limiter
+from app.services.auth import login_user, refresh_access_token
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/login")
-@route_limiter("5/minute")
 def login(data: UserLogin):
     return login_user(data)
+
+@router.post("/refresh")
+def refresh(token: str = Body(..., embed=True)):
+    return refresh_access_token(token)

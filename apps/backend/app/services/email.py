@@ -3,8 +3,9 @@ from app.db.session import SessionLocal
 from app.core.encryption import encrypt, decrypt
 import json
 from datetime import datetime
+import os
 
-KEY = "<your_base64_key>"
+KEY = os.getenv("EMAIL_ENCRYPTION_KEY")
 
 # EmailAccount services
 def create_email_account(data, user):

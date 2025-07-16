@@ -1,0 +1,16 @@
+{
+  "name": "@buddyx/hooks",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "dependencies": {
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/react": "^18.2.62"
+  },
+  "scripts": {
+    "build": "tsc"
+  }
+} 

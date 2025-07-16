@@ -2,8 +2,9 @@ from app.models.journal import JournalEntry
 from app.db.session import SessionLocal
 from app.core.encryption import encrypt, decrypt
 from datetime import date as date_type
+import os
 
-KEY = "<your_base64_key>"
+KEY = os.getenv("JOURNAL_ENCRYPTION_KEY")
 
 def create_or_update_journal_entry(data, user):
     db = SessionLocal()

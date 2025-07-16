@@ -1,8 +1,9 @@
 from app.models.file import FileEntry
 from app.core.encryption import encrypt
 from app.db.session import SessionLocal
+import os
 
-KEY = "<your_base64_key>"
+KEY = os.getenv("FILE_ENCRYPTION_KEY")
 
 def upload_file(data, user):
     db = SessionLocal()

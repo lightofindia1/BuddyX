@@ -2,8 +2,9 @@ from app.models.vault import VaultEntry
 from app.db.session import SessionLocal
 from app.core.encryption import encrypt, decrypt
 import json
+import os
 
-KEY = "<your_base64_key>"
+KEY = os.getenv("VAULT_ENCRYPTION_KEY")
 
 def create_vault_entry(data, user):
     db = SessionLocal()
