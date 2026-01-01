@@ -1,0 +1,21 @@
+.navbar {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem;
+  background: #f7f7f8;
+  border-bottom: 1px solid #e5e7eb;
+}
+.logoutButton {
+  background: #ef4444;
+  color: #fff;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.logoutButton:hover {
+  background: #dc2626;
+} 

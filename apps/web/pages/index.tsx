@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
 import { useAuth } from "../components/AuthContext";
 import { useRouter } from "next/router";
-import Navbar from "../components/Navbar";
+// import Sidebar from "../components/Sidebar";
+import Dashboard from "../components/Dashboard";
 
 const HomePage = () => {
   const { user, loading } = useAuth();
@@ -25,14 +26,10 @@ const HomePage = () => {
   if (!user) return null;
 
   return (
-    <>
-      <Navbar />
-      <main className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-4xl font-bold mb-4">Welcome to BuddyX</h1>
-        <p className="text-lg">Your secure, cross-platform personal assistant.</p>
-        <p className="mt-4">Logged in as <span className="font-mono">{user.username}</span></p>
-      </main>
-    </>
+    <div className="flex h-screen bg-gray-50">
+      {/* <Sidebar activeItem="home" /> */}
+      <Dashboard />
+    </div>
   );
 };
 

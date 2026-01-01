@@ -43,6 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [token]);
 
   useEffect(() => {
+    let timeout: NodeJS.Timeout | null = null;
     const storedToken = localStorage.getItem("token");
     if (storedToken) {
       setToken(storedToken);
@@ -53,10 +54,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (decoded.exp) {
           const expiresIn = decoded.exp * 1000 - Date.now();
           if (expiresIn > 0) {
-            const timeout = setTimeout(() => {
+            timeout = setTimeout(() => {
               refreshToken();
             }, Math.max(expiresIn - 60000, 1000)); // refresh 1 min before expiry
-            return () => clearTimeout(timeout);
           }
         }
       } catch {
@@ -66,26 +66,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
     setLoading(false);
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
   }, [refreshToken]);
 
   const login = async (username: string, password: string) => {
     setLoading(true);
     try {
       const response = await api.post("/auth/login", { username, password });
-      alert(JSON.stringify(response.data));
       const { access_token } = response.data;
-      alert(access_token);
       localStorage.setItem("token", access_token);
       setToken(access_token);
-      var decoded: any;
-      try{
-        decoded = jwtDecode(access_token);
-        alert(JSON.stringify(decoded));
-      }catch(err){
-        alert(err.message);
-        console.log(err);
-        throw err;
-      }
+      const decoded: any = jwtDecode(access_token);
       setUser({ username: decoded.sub, ...decoded });
       setLoading(false);
       router.push("/");
